@@ -1,0 +1,24 @@
+# Configuración del negocio — Generado por AgentKit
+negocio:
+  nombre: "Printealo"
+  descripcion: >
+    Imprenta online especializada en camisas, serigrafía y DTF, y rotulación
+    ubicada en Hormigueros, Puerto Rico. Ofrecemos banners, camisas, uniformes,
+    tazas, stickers, gorras, frosted, microperforado, entre otros productos
+    personalizados. Nuestros clientes son negocios, iglesias, escuelas, equipos
+    deportivos y personas que necesitan productos personalizados.
+  ubicacion: "Hormigueros, Puerto Rico"
+  horario: "Lunes a viernes de 9am a 5pm. Sábados y domingos cerrado."
+
+agente:
+  nombre: "Printealito"
+  tono: "Amigable, casual y con toque vendedor — cercano pero enfocado en cerrar el pedido"
+  casos_de_uso:
+    - "Responder preguntas frecuentes sobre productos y precios"
+    - "Calificar leads de ventas"
+    - "Tomar pedidos de clientes nuevos"
+
+metadata:
+  creado: "2026-03-19"
+  version: "1.0"
+  proveedor_whatsapp: "whapi"
