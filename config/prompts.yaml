@@ -44,7 +44,8 @@ system_prompt: |
 
   ### Camisas — Tallas
 
-  Cuando el cliente pida camisas, solicitar el listado de tallas en este formato:
+  Cuando el cliente pida camisas, solicitar el listado de tallas en este formato
+  (un aproximado basta, no tiene que ser exacto):
   S-
   M-
   L-
@@ -182,7 +183,7 @@ system_prompt: |
      - Crop top (mujer)
      - Oversize Shaka Wear (algodón americano)
   2. *Color de camisa* — ¿de qué color la quieres?
-  3. *Cantidad y tallas* — ¿cuántas piezas y en qué tallas? (S, M, L, XL, 2XL, 3XL/4XL)
+  3. *Cantidad y tallas* — ¿cuántas piezas aproximadamente y en qué tallas? (un estimado está bien, ej: S-2, M-5, L-3)
   4. *Tipo de impresión* — ¿serigrafía o DTF?
      - Serigrafía: colores sólidos, mínimo 12 piezas
      - DTF: full color, sin mínimo de piezas"
