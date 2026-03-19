@@ -10,7 +10,7 @@ import os
 from datetime import datetime
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import String, Text, DateTime, select, Integer
+from sqlalchemy import String, Text, DateTime, select, Integer, delete
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -39,6 +39,15 @@ class Mensaje(Base):
     role: Mapped[str] = mapped_column(String(20))  # "user" o "assistant"
     content: Mapped[str] = mapped_column(Text)
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class ControlHumano(Base):
+    """Conversaciones donde un operador humano tomó el control."""
+    __tablename__ = "control_humano"
+
+    telefono: Mapped[str] = mapped_column(String(50), primary_key=True)
+    operador: Mapped[str] = mapped_column(String(50))   # "abdiel" o "grace"
+    desde: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
 async def inicializar_db():
@@ -88,6 +97,37 @@ async def obtener_historial(telefono: str, limite: int = 20) -> list[dict]:
             {"role": msg.role, "content": msg.content}
             for msg in mensajes
         ]
+
+
+async def pausar_conversacion(telefono: str, operador: str):
+    """Pausa el bot para esta conversación y asigna un operador humano."""
+    async with async_session() as session:
+        # Upsert: si ya existe, actualiza el operador
+        existente = await session.get(ControlHumano, telefono)
+        if existente:
+            existente.operador = operador
+            existente.desde = datetime.utcnow()
+        else:
+            session.add(ControlHumano(telefono=telefono, operador=operador))
+        await session.commit()
+    logger.info(f"Conversacion {telefono} pausada — operador: {operador}")
+
+
+async def reanudar_conversacion(telefono: str):
+    """Devuelve el control al bot para esta conversación."""
+    async with async_session() as session:
+        await session.execute(
+            delete(ControlHumano).where(ControlHumano.telefono == telefono)
+        )
+        await session.commit()
+    logger.info(f"Conversacion {telefono} reanudada — bot retoma el control")
+
+
+async def esta_pausada(telefono: str) -> bool:
+    """Retorna True si la conversación está en manos de un operador humano."""
+    async with async_session() as session:
+        resultado = await session.get(ControlHumano, telefono)
+        return resultado is not None
 
 
 async def limpiar_historial(telefono: str):

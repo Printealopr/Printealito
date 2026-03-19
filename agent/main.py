@@ -14,7 +14,8 @@ from fastapi.responses import PlainTextResponse
 from dotenv import load_dotenv
 
 from agent.brain import generar_respuesta
-from agent.memory import inicializar_db, guardar_mensaje, obtener_historial
+from agent.memory import (inicializar_db, guardar_mensaje, obtener_historial,
+                          pausar_conversacion, reanudar_conversacion, esta_pausada)
 from agent.providers import obtener_proveedor
 
 load_dotenv()
@@ -62,25 +63,62 @@ async def webhook_verificacion(request: Request):
     return {"status": "ok"}
 
 
+# Operadores autorizados para tomar control de conversaciones
+COMANDOS_PAUSA = {"#abdiel", "#grace"}
+COMANDO_REANUDAR = "#bot"
+
+
+def detectar_comando_control(texto: str) -> str | None:
+    """
+    Detecta si el texto contiene un comando de control humano.
+    Retorna el comando limpio o None si no hay ninguno.
+    """
+    texto_limpio = texto.strip().lower()
+    if texto_limpio in COMANDOS_PAUSA:
+        return texto_limpio
+    if texto_limpio == COMANDO_REANUDAR:
+        return COMANDO_REANUDAR
+    return None
+
+
 @app.post("/webhook")
 async def webhook_handler(request: Request):
     """
     Recibe mensajes de WhatsApp via el proveedor configurado.
     Procesa el mensaje, genera respuesta con Claude y la envía de vuelta.
+    Soporta control humano con #abdiel, #grace y #bot.
     """
     try:
-        # Parsear webhook — el proveedor normaliza el formato
         mensajes = await proveedor.parsear_webhook(request)
 
         for msg in mensajes:
-            # Ignorar mensajes propios o vacíos
-            if msg.es_propio or not msg.texto:
+            if not msg.texto:
                 continue
 
+            # ── Comandos de control humano (enviados por el operador) ──────────
+            # Los operadores envían #abdiel, #grace o #bot desde su WhatsApp.
+            # Estos mensajes llegan con from_me=True (enviados desde el número del negocio).
+            if msg.es_propio:
+                comando = detectar_comando_control(msg.texto)
+                if comando in COMANDOS_PAUSA:
+                    operador = comando.lstrip("#")
+                    await pausar_conversacion(msg.telefono, operador)
+                    logger.info(f"Control humano activado por {operador} en {msg.telefono}")
+                elif comando == COMANDO_REANUDAR:
+                    await reanudar_conversacion(msg.telefono)
+                    logger.info(f"Bot retoma control de {msg.telefono}")
+                # Ignorar todos los demás mensajes propios
+                continue
+
+            # ── Mensaje del cliente ───────────────────────────────────────────
             logger.info(f"Mensaje de {msg.telefono}: {msg.texto}")
 
+            # Si la conversación está en manos de un operador, el bot no interviene
+            if await esta_pausada(msg.telefono):
+                logger.info(f"Conversacion {msg.telefono} en control humano — bot silenciado")
+                continue
+
             # Obtener historial ANTES de guardar el mensaje actual
-            # (brain.py agrega el mensaje actual, evitando duplicados)
             historial = await obtener_historial(msg.telefono)
 
             # Generar respuesta con Claude
