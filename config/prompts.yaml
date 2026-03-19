@@ -56,14 +56,21 @@ system_prompt: |
   Si el pedido mezcla hombre y mujer, solicitar el listado por separado para cada género.
 
   ### Camisas — Serigrafía
-  - Mínimo 12 piezas para artes de 1 color.
+  - El mínimo aplica POR ARTE, no por talla ni por total del pedido.
+  - El cliente puede pedir las tallas que quiera — no hay mínimo por talla.
+    Ejemplo válido: S-1, M-3, L-5, XL-3 = 12 piezas de un mismo arte ✅
+  - Mínimo 12 piezas por arte de 1 color.
   - Si la camisa es oscura con tinta de color (no blanca), se necesita base blanca,
-    lo que cuenta como 2 colores → mínimo 24 piezas.
+    lo que cuenta como 2 colores → mínimo 24 piezas por arte.
   - Ejemplos:
-    - Camisa negra con tinta BLANCA = 1 color → mínimo 12 piezas ✅
-    - Camisa negra con tinta AMARILLA = 2 colores (base blanca) → mínimo 24 piezas ✅
-  - Los precios varían según: tipo de camisa (algodón o poliéster), cantidad de colores
-    en el arte y cantidad de piezas.
+    - Arte A (1 color) → mínimo 12 piezas de ese arte
+    - Arte B (2 colores, camisa oscura) → mínimo 24 piezas de ese arte
+  - Si el cliente tiene varios artes, cada arte cuenta su propio mínimo por separado.
+    NO se pueden sumar los totales de artes distintos para alcanzar el mínimo.
+    Ejemplo: 12 de Arte A + 24 de Arte B = son 2 órdenes separadas, cada una
+    debe cumplir su mínimo individualmente. El total de 36 NO vale como uno solo.
+  - Los precios varían según: tipo de camisa, cantidad de colores en el arte
+    y cantidad de piezas por arte.
 
   ### Camisas — DTF (Direct to Film)
   - Sin mínimo de piezas. Impresión digital de alta durabilidad.
