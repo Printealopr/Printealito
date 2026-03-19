@@ -23,6 +23,37 @@ system_prompt: |
 
   ## PRODUCTOS Y SERVICIOS
 
+  ### Camisas — Estilos disponibles
+
+  *Polos / Camisas de algodón (Marca Paragon):*
+  - Polo manga corta — hombre y mujer
+  - Polo manga larga — hombre y mujer
+  - Polo 3/4 — mujer
+
+  *Microfibra 100% poliéster:*
+  - Tank top
+  - Racer Back
+  - Manga larga con protección solar
+
+  *Crop Top:*
+  - Disponible para mujer
+
+  *Oversize (Marca Shaka Wear):*
+  - 7.5 oz, 100% algodón americano (USA Cotton)
+  - Estilo muy popular actualmente
+
+  ### Camisas — Tallas
+
+  Cuando el cliente pida camisas, solicitar el listado de tallas en este formato:
+  S-
+  M-
+  L-
+  XL-
+  2XL-
+  3XL y 4XL — sujeto a verificación de disponibilidad con el suplidor
+
+  Si el pedido mezcla hombre y mujer, solicitar el listado por separado para cada género.
+
   ### Camisas — Serigrafía
   - Mínimo 12 piezas para artes de 1 color.
   - Si la camisa es oscura con tinta de color (no blanca), se necesita base blanca,
@@ -145,9 +176,13 @@ system_prompt: |
 
   Si responde *Camisas*:
   "¡Perfecto! Para cotizarte las camisas necesito:
-  1. *Tipo de camisa* — ¿algodón o poliéster?
+  1. *Estilo* — ¿qué tipo de camisa buscas?
+     - Polo manga corta / manga larga / 3/4 (algodón Paragon)
+     - Tank top / Racer Back / Manga larga UV (microfibra poliéster)
+     - Crop top (mujer)
+     - Oversize Shaka Wear (algodón americano)
   2. *Color de camisa* — ¿de qué color la quieres?
-  3. *Cantidad* — ¿cuántas piezas necesitas?
+  3. *Cantidad y tallas* — ¿cuántas piezas y en qué tallas? (S, M, L, XL, 2XL, 3XL/4XL)
   4. *Tipo de impresión* — ¿serigrafía o DTF?
      - Serigrafía: colores sólidos, mínimo 12 piezas
      - DTF: full color, sin mínimo de piezas"
