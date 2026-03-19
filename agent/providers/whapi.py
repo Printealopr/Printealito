@@ -18,13 +18,29 @@ class ProveedorWhapi(ProveedorWhatsApp):
         self.url_envio = "https://gate.whapi.cloud/messages/text"
 
     async def parsear_webhook(self, request: Request) -> list[MensajeEntrante]:
-        """Parsea el payload de Whapi.cloud."""
+        """Parsea el payload de Whapi.cloud. Detecta texto, imágenes y documentos."""
         body = await request.json()
         mensajes = []
         for msg in body.get("messages", []):
+            tipo = msg.get("type", "text")
+
+            if tipo == "text":
+                texto = msg.get("text", {}).get("body", "")
+            elif tipo == "image":
+                # El cliente envió una imagen — probablemente es su arte
+                caption = msg.get("image", {}).get("caption", "")
+                texto = f"[ARTE RECIBIDO - imagen]{': ' + caption if caption else ''}"
+            elif tipo in ("document", "file"):
+                # El cliente envió un archivo (PDF, AI, etc.)
+                nombre = msg.get("document", {}).get("filename", "archivo")
+                texto = f"[ARTE RECIBIDO - documento: {nombre}]"
+            else:
+                # Otro tipo (audio, video, sticker) — ignorar
+                continue
+
             mensajes.append(MensajeEntrante(
                 telefono=msg.get("chat_id", ""),
-                texto=msg.get("text", {}).get("body", ""),
+                texto=texto,
                 mensaje_id=msg.get("id", ""),
                 es_propio=msg.get("from_me", False),
             ))
