@@ -7,11 +7,14 @@ por número de teléfono usando SQLite (local) o PostgreSQL (producción).
 """
 
 import os
+import logging
 from datetime import datetime
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import String, Text, DateTime, select, Integer, delete
 from dotenv import load_dotenv
+
+logger = logging.getLogger("agentkit")
 
 load_dotenv()
 

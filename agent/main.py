@@ -101,10 +101,15 @@ async def webhook_handler(request: Request):
             if msg.es_propio:
                 comando = detectar_comando_control(msg.texto)
                 if comando in COMANDOS_PAUSA:
+                    # Borrar el mensaje del chat ANTES de procesar,
+                    # para que el cliente nunca vea el comando interno.
+                    await proveedor.eliminar_mensaje(msg.mensaje_id)
                     operador = comando.lstrip("#")
                     await pausar_conversacion(msg.telefono, operador)
                     logger.info(f"Control humano activado por {operador} en {msg.telefono}")
                 elif comando == COMANDO_REANUDAR:
+                    # Borrar también el #bot del chat
+                    await proveedor.eliminar_mensaje(msg.mensaje_id)
                     await reanudar_conversacion(msg.telefono)
                     logger.info(f"Bot retoma control de {msg.telefono}")
                 # Ignorar todos los demás mensajes propios
