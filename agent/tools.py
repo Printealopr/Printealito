@@ -9,9 +9,61 @@ Funciones para FAQ, calificación de leads y toma de pedidos.
 import os
 import yaml
 import logging
-from datetime import datetime
+import httpx
+from datetime import datetime, timezone, timedelta
 
 logger = logging.getLogger("agentkit")
+
+# Puerto Rico: AST (UTC-4), sin horario de verano
+PR_TZ = timezone(timedelta(hours=-4))
+
+# Número de Grace para notificaciones al equipo
+NUMERO_NOTIFICACIONES = os.getenv("NUMERO_NOTIFICACIONES", "17879519388")
+
+
+async def notificar_equipo(telefono_cliente: str, resumen: str) -> str:
+    """
+    Notifica al equipo de Printealo cuando un cliente necesita asistencia humana.
+    Verifica si es horario laborable (lunes a viernes 9am-5pm hora de PR).
+
+    Retorna:
+        "equipo_notificado" — WhatsApp enviado a Grace exitosamente
+        "fuera_de_horario"  — fuera del horario laboral, no se envió
+        "error"             — fallo al enviar la notificación
+    """
+    ahora = datetime.now(PR_TZ)
+    es_dia_laborable = ahora.weekday() < 5   # 0=lunes, 4=viernes
+    es_horario = 9 <= ahora.hour < 17        # 9am a 5pm
+
+    if not (es_dia_laborable and es_horario):
+        logger.info(f"Notificacion fuera de horario ({ahora.strftime('%A %H:%M')} PR) — no enviada")
+        return "fuera_de_horario"
+
+    token = os.getenv("WHAPI_TOKEN")
+    if not token:
+        logger.error("WHAPI_TOKEN no configurado — no se pudo notificar al equipo")
+        return "error"
+
+    mensaje_equipo = (
+        f"⚠️ Cliente {telefono_cliente} necesita asistencia. "
+        f"Está preguntando por: {resumen}"
+    )
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+    }
+    async with httpx.AsyncClient() as http:
+        r = await http.post(
+            "https://gate.whapi.cloud/messages/text",
+            json={"to": NUMERO_NOTIFICACIONES, "body": mensaje_equipo},
+            headers=headers,
+        )
+        if r.status_code == 200:
+            logger.info(f"Equipo notificado sobre cliente {telefono_cliente}: {resumen}")
+            return "equipo_notificado"
+        else:
+            logger.error(f"Error enviando notificacion al equipo: {r.status_code} — {r.text}")
+            return "error"
 
 
 def cargar_info_negocio() -> dict:
